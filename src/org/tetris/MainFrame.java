@@ -61,6 +61,10 @@ public class MainFrame extends JFrame {
 				control.turn(true);
 			}
 			
+			if (e.getKeyCode() == KeyEvent.VK_C) {
+				control.drop();
+			}
+			
 			if(e.getKeyCode()== KeyEvent.VK_LEFT){
 				control.leftMove();
 			}

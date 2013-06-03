@@ -1,6 +1,9 @@
 package org.tetris;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class GameBoardModel {
 	/**
@@ -75,6 +78,43 @@ public class GameBoardModel {
 	public void clear() {
 		initTiles();
 	}
+	
+	public ArrayList<Integer> clearRows(){
+		ArrayList<Integer> list=new ArrayList<Integer>();
+		for(int r=0;r<GAMEPLAY_ROW_COUNT;r++){
+			boolean isFull=true;
+			for(int c=0;c<GAMEPLAY_COLUMN_COUNT;c++){
+				isFull=!tiles[r][c].isEmpty & isFull;
+			}
+			if(isFull){
+				clearRow(r);
+				list.add(r);
+			}
+		}
+		Collections.sort(list);
+		return list;
+	}
+	
+	private void clearRow(int row){
+		for(int c=0;c<GAMEPLAY_COLUMN_COUNT;c++){
+			tiles[row][c].isEmpty=true;
+			tiles[row][c].setColor(Tile.BLACK);
+		}
+	}
+	
+	private void shiftRows(List<Integer> rowList){
+		for(int r: rowList){
+			dropRows(r);
+		}
+	}
+	
+	private void dropRows(int row){
+		for(int r=row-1;r>=0;r--){
+			for(int c=0;c<GAMEPLAY_COLUMN_COUNT;c++){
+				tiles[r+1][c]=tiles[r][c];
+			}
+		}
+	}
 
 	/**
 	 * Move the current piece down by 1 step
@@ -85,9 +125,18 @@ public class GameBoardModel {
 			return piece.moveDown();
 		} else {
 			fill();
+			shiftRows(clearRows());
 			switchPiece();
 			return piece.getRow();
 		}
+	}
+	
+	public void drop(){
+		while(this.isValidAndEmpty(piece.getPiece(),piece.getRow() + piece.getStep(),
+				piece.getColumn(),piece.getRotation())){
+			piece.moveDown();
+		}
+		shiftRows(clearRows());
 	}
 	
 	/**
@@ -116,15 +165,12 @@ public class GameBoardModel {
 		return (rotation == 0) ? 3 : rotation - 1;
 	}
 	
-	public int turnRight(){
-		int r=this.clockWiseTurn(piece.getRotation());
-		if(this.isValidAndEmpty(piece.getPiece(), piece.getRow(), piece.getColumn(), r))
-			return piece.clockwiseTurn();
-		return piece.getRotation();
-	}
-	
-	public int turnLeft(){
-		int r=this.counterClockwiseTurn(piece.getRotation());
+	public int turn(boolean clockWise){
+		int r;
+		if(clockWise)
+			r=this.clockWiseTurn(piece.getRotation());
+		else
+			r=this.counterClockwiseTurn(piece.getRotation());
 		if(this.isValidAndEmpty(piece.getPiece(), piece.getRow(), piece.getColumn(), r))
 			return piece.clockwiseTurn();
 		return piece.getRotation();

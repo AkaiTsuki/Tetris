@@ -32,10 +32,7 @@ public class GameController implements Controller {
 
 	@Override
 	public int turn(boolean clockwise) {
-		if (clockwise)
-			return gameBoardModel.turnRight();
-		else
-			return gameBoardModel.turnLeft();
+		return gameBoardModel.turn(clockwise);
 	}
 	
 	@Override
@@ -83,6 +80,11 @@ public class GameController implements Controller {
 	@Override
 	public Tile[][] getAllTiles() {
 		return gameBoardModel.getTiles();
+	}
+
+	@Override
+	public void drop() {
+		gameBoardModel.drop();
 	}	
 	
 }

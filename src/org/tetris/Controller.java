@@ -32,5 +32,6 @@ public interface Controller {
 	public int leftMove();
 	public int rightMove();
 	public Tile[][] getAllTiles();
+	public void drop();
 	
 }
