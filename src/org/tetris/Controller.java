@@ -31,6 +31,6 @@ public interface Controller {
 	 */
 	public int leftMove();
 	public int rightMove();
-	public ArrayList<TilePiece> listAllPieces();
+	public Tile[][] getAllTiles();
 	
 }

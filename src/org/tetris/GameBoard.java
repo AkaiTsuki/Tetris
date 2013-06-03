@@ -7,8 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-
 import javax.swing.JPanel;
 
 public class GameBoard extends JPanel {
@@ -30,6 +28,7 @@ public class GameBoard extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		drawBoardTiles(g);
 		drawPiece(g, control.getCurrentPiece().getColumn(),control.getCurrentPiece().getRow());
 		drawGrid(g);
 	}
@@ -77,9 +76,11 @@ public class GameBoard extends JPanel {
 	}
 	
 	private void drawBoardTiles(Graphics g){
-		ArrayList<TilePiece> pieces=control.listAllPieces();
-		for(TilePiece p:pieces){
-			drawPiece(g);
+		Tile[][] tiles=control.getAllTiles();
+		for(int r=0;r<tiles.length;r++){
+			for(int c=0;c<tiles[0].length;c++){
+				drawTile(g,getXCoordinate(c),getYCoordinate(r),tiles[r][c].getColor(),Color.black);
+			}
 		}
 	}
 	

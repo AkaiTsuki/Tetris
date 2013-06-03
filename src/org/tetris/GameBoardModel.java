@@ -1,76 +1,184 @@
 package org.tetris;
 
-import java.util.ArrayList;
+import java.awt.Color;
 
 public class GameBoardModel {
 	/**
-	 *  The size of a single tile
+	 * The size of a single tile
 	 */
 	public static final int TILEPIXELS = 24;
 	/**
-	 *  Total number of rows that the piece can be placed in board
+	 * Total number of rows that the piece can be placed in board
 	 */
 	public static final int GAMEPLAY_ROW_COUNT = 20;
 	/**
 	 * Total number of columns that the piece can be placed in board
 	 */
 	public static final int GAMEPLAY_COLUMN_COUNT = 10;
-	
+
 	/**
-	 *  Total width in pixel that the board takes
+	 * Total width in pixel that the board takes
 	 */
 	public static final int BOARDWIDTH = TILEPIXELS * GAMEPLAY_COLUMN_COUNT;
 	/**
 	 * Total height in pixel that the board takes
 	 */
 	public static final int BOARDHEIGHT = TILEPIXELS * GAMEPLAY_ROW_COUNT;
-	
+
 	/**
 	 * Current piece that is dropping in the board
 	 */
 	private TilePiece piece;
-	
+
 	/**
 	 * Next piece that will be dropped in board
 	 */
 	private TilePiece nextPiece;
-	
+
 	/**
 	 * The rotation of current piece
 	 */
 	private int rotation;
-	
+
 	/**
-	 *  The places that contains tiles
+	 * The places that contains tiles
 	 */
-	private ArrayList<TilePiece> pieces;
-	
-	public GameBoardModel(){
-		piece=getRandomPiece();
-		nextPiece=getRandomPiece();
+	private Tile[][] tiles;
+
+	public GameBoardModel() {
+		piece = getRandomPiece();
+		nextPiece = getRandomPiece();
+		initTiles();
 	}
-	
+
+	private void initTiles() {
+		tiles = new Tile[GAMEPLAY_ROW_COUNT][GAMEPLAY_COLUMN_COUNT];
+
+		for (int i = 0; i < tiles.length; i++) {
+			for (int j = 0; j < tiles[0].length; j++) {
+				tiles[i][j] = new Tile(true, Tile.BLACK);
+			}
+		}
+	}
+
 	/**
 	 * @return a piece randomly chosen from all types.
 	 */
-	private TilePiece getRandomPiece(){	
-		Piece p=PieceFactory.getRandomPieceInstance();
-		return new TilePiece(p,0,1,0,4);
+	private TilePiece getRandomPiece() {
+		Piece p = PieceFactory.getRandomPieceInstance();
+		return new TilePiece(p, 0, 1, 0, 4);
+	}
+
+	/**
+	 * Set the board to empty
+	 */
+	public void clear() {
+		initTiles();
+	}
+
+	/**
+	 * Move the current piece down by 1 step
+	 */
+	public int movePieceDown() {
+		if (this.isValidAndEmpty(piece.getPiece(),piece.getRow() + piece.getStep(),
+				piece.getColumn(),piece.getRotation())) {
+			return piece.moveDown();
+		} else {
+			fill();
+			switchPiece();
+			return piece.getRow();
+		}
 	}
 	
 	/**
-	 *  Set the board to empty
+	 * @return the column that the piece after move left
 	 */
-	public void clear(){
-		pieces=new ArrayList<TilePiece>();
+	public int movePieceLeft(){
+		if(this.isValidAndEmpty(piece.getPiece(),piece.getRow(), piece.getColumn()-piece.getStep(),piece.getRotation()))
+			return piece.moveLeft();
+		return piece.getColumn();
 	}
 	
 	/**
-	 *  Assign next piece to current and generate a new next piece randomly
+	 * @return the column that the piece after move right
 	 */
-	public void switchPiece(){
-		piece=nextPiece;
-		nextPiece=getRandomPiece();
+	public int movePieceRight(){
+		if(this.isValidAndEmpty(piece.getPiece(),piece.getRow(), piece.getColumn()+piece.getStep(),piece.getRotation()))
+			return piece.moveRight();
+		return piece.getColumn();
+	}
+	
+	public int clockWiseTurn(int rotation){
+		return (rotation == 3) ? 0 : rotation + 1;
+	}
+	
+	public int counterClockwiseTurn(int rotation) {
+		return (rotation == 0) ? 3 : rotation - 1;
+	}
+	
+	public int turnRight(){
+		int r=this.clockWiseTurn(piece.getRotation());
+		if(this.isValidAndEmpty(piece.getPiece(), piece.getRow(), piece.getColumn(), r))
+			return piece.clockwiseTurn();
+		return piece.getRotation();
+	}
+	
+	public int turnLeft(){
+		int r=this.counterClockwiseTurn(piece.getRotation());
+		if(this.isValidAndEmpty(piece.getPiece(), piece.getRow(), piece.getColumn(), r))
+			return piece.clockwiseTurn();
+		return piece.getRotation();
+	}
+	
+	/**
+	 *  Fill the board with current piece
+	 */
+	public void fill() {
+		int dimension = piece.getDimension();
+		int[] layoutArray = piece.getPieceLayout();
+		Color bgColor = piece.getPieceBackgroundColor();
+		for (int c = 0; c < dimension; c++) {
+			for (int r = 0; r < dimension; r++) {
+				if (layoutArray[c + r * dimension] == 1) {
+					tiles[r + piece.getRow()][c + piece.getColumn()]
+							.setColor(bgColor);
+					tiles[r + piece.getRow()][c + piece.getColumn()].isEmpty = false;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param row
+	 * @param col
+	 * @return whether the given coordinate is valid to put current piece.
+	 */
+	public boolean isValidAndEmpty(Piece p,int row, int col,int rotation) {
+
+		if (row + p.getBottomRow(rotation) >= GAMEPLAY_ROW_COUNT
+				|| col + p.getRightColumn(rotation) >= GAMEPLAY_COLUMN_COUNT
+				|| col + p.getLeftColumn(rotation) < 0)
+			return false;
+
+		int dimension = piece.getDimension();
+		int[] layoutArray = p.getLayout()[rotation];
+		for (int c = 0; c < dimension; c++) {
+			for (int r = 0; r < dimension; r++) {
+				if (layoutArray[c + r * dimension] == 1
+						&& !tiles[r + row][c + col].isEmpty) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Assign next piece to current and generate a new next piece randomly
+	 */
+	public void switchPiece() {
+		piece = nextPiece;
+		nextPiece = getRandomPiece();
 	}
 
 	public TilePiece getPiece() {
@@ -97,16 +205,12 @@ public class GameBoardModel {
 		this.rotation = rotation;
 	}
 
-	public ArrayList<TilePiece> getPieces() {
-		return pieces;
+	public Tile[][] getTiles() {
+		return tiles;
 	}
 
-	public void setPieces(ArrayList<TilePiece> pieces) {
-		this.pieces = pieces;
+	public void setTiles(Tile[][] tiles) {
+		this.tiles = tiles;
 	}
 
-	
-	
-	
-	
 }

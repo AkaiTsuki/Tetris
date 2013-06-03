@@ -61,95 +61,87 @@ public class TilePiece {
 	}
 
 	/**
-	 * @param bottom
-	 *            the bottom edge of the board
+	 * 
 	 * @return the new row of the piece after drop
 	 */
-	public int moveDown(int bottom) {
-		if(!this.isAtBottom(bottom)){
-			row= row+step;
-		}
+	public int moveDown() {
+		row=row+step;
 		return row;
 	}
+	
+	
 	
 	/**
 	 * Move the piece to the left by 1 step
 	 * @return the new column of the piece after move
 	 */
 	public int moveLeft(){
-		int currentLeftCol=this.getLeftMostColumn();
-		if(currentLeftCol-step>=0)
-			column-=step;
+		column-=step;
 		return column;
 	}
 	
+	/**
+	 * Move the piece to the right by 1 step
+	 * @return the new column of the piece after move
+	 */
 	public int moveRight(){
-		int currentRightCol=this.getRightMostColumn();
-		if(currentRightCol+step<GameBoardModel.GAMEPLAY_COLUMN_COUNT)
-			column+=step;
+		column+=step;
 		return column;
 	}
 	
-	public boolean isAtBottom(int bottom){
-		int currentBottomRow=this.getBottomMostRow();
-		if(currentBottomRow+step<bottom){
-			return false;
-		}
-		return true;
-	}
-	
 	/**
-	 * @return the two dimension array representation of the piece
+	 * @return the relative column that at left most of the piece
 	 */
-	public int[][] getLayoutInTwoDimension(){
-		int[] rawLayout=getPieceLayout();
-		return convertLayout(rawLayout,this.getDimension());
-	}
-	
-	/**
-	 * @param layout one dimension layout array
-	 * @param dimension the dimension of piece
-	 * @return the two dimension array representation of the piece
-	 */
-	private int[][] convertLayout(int[] layout,int dimension){
-		int[][] newLayout=new int[dimension][dimension];
-		for(int r=0;r<dimension;r++){
-			for(int c=0;c<dimension;c++){
-				int index=r*dimension+c;
-				if(layout[index]==1)
-					newLayout[r][c]=1;
-				else
-					newLayout[r][c]=0;
-			}
-		}
-		return newLayout;
+	public int getRelativeLeftMostColumn(){
+		return piece.getLeftColumn(rotation);
 	}
 	
 	/**
 	 * @return the actual column that the left most tile of the piece position in board
 	 */
-	public int getLeftMostColumn(){
+	public int getAbstractLeftMostColumn(){
 		return piece.getLeftColumn(rotation)+column;
+	}
+	
+	/**
+	 * @return the relative column that at right most of the piece
+	 */
+	public int getRelativeRightMostColumn(){
+		return piece.getRightColumn(rotation);
 	}
 	
 	/**
 	 * @return the actual column that the right most tile of the piece position in board
 	 */
-	public int getRightMostColumn(){
+	public int getAbstractRightMostColumn(){
 		return piece.getRightColumn(rotation)+column;
+	}
+	
+	/**
+	 * @return the relative row that at top most of the piece
+	 */
+	public int getRelativeTopMostRow(){
+		return piece.getTopRow(rotation);
 	}
 	
 	/**
 	 * @return the actual row that the top most tile of the piece position in board
 	 */
-	public int getTopMostRow(){
+	public int getAbstractTopMostRow(){
 		return piece.getTopRow(rotation)+row;
+	}
+	
+	/**
+	 * @return the relative row that at bottom most of the piece
+	 */
+	public int getRelativeBottomMostRow(){
+		return piece.getBottomRow(rotation);
 	}
 	
 	/**
 	 * @return the actual row that the bottom most tile of the piece position in board
 	 */
-	public int getBottomMostRow(){
+	public int getAbstractBottomMostRow(){
 		return piece.getBottomRow(rotation)+row;
 	}
 

@@ -33,19 +33,19 @@ public class GameController implements Controller {
 	@Override
 	public int turn(boolean clockwise) {
 		if (clockwise)
-			return gameBoardModel.getPiece().clockwiseTurn();
+			return gameBoardModel.turnRight();
 		else
-			return gameBoardModel.getPiece().counterClockwiseTurn();
+			return gameBoardModel.turnLeft();
 	}
 	
 	@Override
 	public int leftMove() {
-		return gameBoardModel.getPiece().moveLeft();
+		return gameBoardModel.movePieceLeft();
 	}
 	
 	@Override
 	public int rightMove() {
-		return gameBoardModel.getPiece().moveRight();
+		return gameBoardModel.movePieceRight();
 	}
 
 	@Override
@@ -75,20 +75,14 @@ public class GameController implements Controller {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(gameBoardModel.getPiece().isAtBottom(GameBoardModel.GAMEPLAY_ROW_COUNT)){
-				gameBoardModel.switchPiece();
-			}else{
-				gameBoardModel.getPiece().moveDown(GameBoardModel.GAMEPLAY_ROW_COUNT);
-			}		
+			gameBoardModel.movePieceDown();
 		}
 		
 	}
 
 	@Override
-	public ArrayList<TilePiece> listAllPieces() {
-		return gameBoardModel.getPieces();
-	}
-
-	
+	public Tile[][] getAllTiles() {
+		return gameBoardModel.getTiles();
+	}	
 	
 }
